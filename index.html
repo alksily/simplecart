@@ -1,3 +1,4 @@
+<title>SimpleCart | 0x12f</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
 <style>
     body {
@@ -15,20 +16,26 @@
         font-size: 1rem;
         line-height: 1.5;
         color: #495057;
-        background-color: #fff;
+        background-color: #ffffff;
         background-clip: padding-box;
         border: 1px solid #ced4da;
         border-radius: .25rem;
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
     }
+    
     [data-catalog-cart] input {
         width: 100%;
         text-align: center;
     }
+    
     [data-catalog-cart] button {
-        color: #fff;
+        color: #ffffff;
         background-color: #0069d9;
         border-color: #0062cc;
+    }
+    
+    .check-error {
+        border-color: firebrick;
     }
 </style>
 
@@ -38,7 +45,10 @@
         <div class="col-lg-8 mx-auto">
             <h1 class="display-4">SimpleCart</h1>
             <p class="lead mb-0">A simple JavaScript shopping cart that you can setup in minutes.</p>
-            <p class="lead">Snippet by <a href="https://github.com/0x12f" class="text-white"><u>0x12f</u></a></p>
+            <p class="lead">
+                Fork me on <a href="https://github.com/0x12f/simplecart" target="_blank" class="text-white"><u>GitHub</u></a>,
+                snippet by <a href="https://github.com/alksily" class="text-white"><u>Aleksey Ilyin</u></a>
+            </p>
         </div>
     </div>
 </div>
@@ -49,7 +59,7 @@
     <div class="row text-center text-white">
         <div class="col-lg-8 mx-auto">
             In cart <span data-catalog-cart-count>0</span> items
-            total cost <span data-catalog-cart-total>0</span>$
+            on total cost <span data-catalog-cart-total>0</span>
         </div>
     </div>
 </div>
@@ -63,12 +73,13 @@
                 <div class="card-body">
                     <h5>Shoes</h5>
                     <h4 class="card-title"><strong><a href="">Product 1</a></strong></h4>
-                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus
+                        saepe eveniet ut et voluptates.</p>
                 </div>
                 <div class="card-footer text-muted">
                     <span class="float-left p-1">49$</span>
                     <span class="float-right">
-                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
                     </span>
                 </div>
                 <div style="display: none;">
@@ -87,12 +98,13 @@
                 <div class="card-body">
                     <h5>Shoes</h5>
                     <h4 class="card-title"><strong><a href="">Product 2</a></strong></h4>
-                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus
+                        saepe eveniet ut et voluptates.</p>
                 </div>
                 <div class="card-footer text-muted">
                     <span class="float-left p-1">59$</span>
                     <span class="float-right">
-                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
                     </span>
                 </div>
                 <div style="display: none;">
@@ -111,12 +123,13 @@
                 <div class="card-body">
                     <h5>Shoes</h5>
                     <h4 class="card-title"><strong><a href="">Product 3</a></strong></h4>
-                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus
+                        saepe eveniet ut et voluptates.</p>
                 </div>
                 <div class="card-footer text-muted">
                     <span class="float-left p-1">64$</span>
                     <span class="float-right">
-                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
                     </span>
                 </div>
                 <div style="display: none;">
@@ -131,40 +144,48 @@
     </div>
 </div>
 
+<div class="container">
+    <div class="row">
+        <div id="data" class="card-body"></div>
+    </div>
+</div>
+
 <div class="container mb-5">
     <div class="card">
         <div class="card-body">
             <div data-catalog-cart></div>
-    
+            
             <hr>
             
             <div class="row">
                 <div class="col-lg-6">
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label for="firstName">First name</label>
-                            <input type="text" id="firstName" class="form-control" required>
+                            <label for="firstName">First name (*)</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control" data-catalog-cart-data required>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label for="lastName">Last name</label>
-                            <input type="text" id="lastName" class="form-control" required>
+                            <label for="lastName">Last name (*)</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control" data-catalog-cart-data required>
                         </div>
                     </div>
-    
+                    
                     <label for="email">Email (optional)</label>
-                    <input type="text" id="email" class="form-control mb-4" placeholder="youremail@example.com">
+                    <input type="text" id="email" name="email" class="form-control mb-4" data-catalog-cart-data placeholder="youremail@example.com">
                 </div>
                 
                 <div class="col-lg-6">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" class="form-control mb-4" placeholder="1234 Main St" required>
-    
+                    <label for="address">Address (*)</label>
+                    <input type="text" id="address" name="address" class="form-control mb-4" data-catalog-cart-data required placeholder="1234 Main St">
+                    
                     <label for="address-2">Address 2 (optional)</label>
-                    <input type="text" id="address-2" class="form-control mb-4" placeholder="Apartment or suite">
+                    <input type="text" id="address-2" name="address-2" class="form-control mb-4" data-catalog-cart-data placeholder="Apartment or suite">
                 </div>
-    
+                
                 <div class="col-lg-10 d-block mx-auto">
-                    <button class="btn btn-primary btn-lg btn-block waves-effect waves-light" data-catalog-cart-checkout type="button">Place order</button>
+                    <button class="btn btn-primary btn-lg btn-block waves-effect waves-light" data-catalog-cart-checkout type="button">
+                        Place order
+                    </button>
                 </div>
             </div>
         </div>
@@ -186,15 +207,34 @@
                 {label: 'Remove', attr: 'remove', view: null, class: null, style: 'text-align: center;'},
             ],
             columns_header: true,
-            style: 'table'
+            style: 'table',
+            table_class: 'table table-striped'
         },
         precision: {
             count: 0,
             price: 0,
         },
+        currency: {
+            position: 'after',
+            symbol: '$',
+        },
         events: {
             'on:cart:add': (data) => {
                 alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
+            },
+            'on:cart:checkout:before': formData => {
+                let object = {};
+                
+                formData.forEach(function (value, key) {
+                    object[key] = value;
+                });
+                console.info('Cart data', object);
+                
+                $('#data').html(
+                    JSON.stringify(object, null, 6).replace(/\n( *)/g, (match, p1) => {
+                        return '<br>' + '&nbsp;'.repeat(p1.length);
+                    })
+                );
             }
         }
     }

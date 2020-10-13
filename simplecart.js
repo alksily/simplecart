@@ -40,7 +40,10 @@
             style: 'table',
             
             // cart table class
-            class: '',
+            class: {
+                table: 'table',
+                container: 'cart-container',
+            },
             
             // cart handler url
             url: '',
@@ -54,6 +57,12 @@
         precision: {
             count: 0, // in item counts
             price: 2, // in item prices and totals
+        },
+        
+        // currency
+        currency: {
+            position: 'after', // or 'before'
+            symbol: '',
         },
         
         // default selectors
@@ -142,8 +151,8 @@
         cartRender() {
             let
                 $Tag = cartRenderGet$El,
-                $root = $Tag('root').addClass(options.cart.class),
-                $table = $Tag('table'),
+                $root = $Tag('root').addClass(options.cart.class.container),
+                $table = $Tag('table').addClass(options.cart.class.table),
                 $thead = $Tag('thead'),
                 $tbody = $Tag('tbody'),
                 $items = $Tag('items')
@@ -262,10 +271,22 @@
                                     );
                                     break;
                                 case 'price':
-                                    $column.text((item.price).toFixed(options.precision.price));
+                                    $column.text(
+                                        [
+                                            (options.currency.position === 'before' ? options.currency.symbol : ''),
+                                            (item.price).toFixed(options.precision.price),
+                                            (options.currency.position === 'after' ? options.currency.symbol : '')
+                                        ].join('')
+                                    );
                                     break;
                                 case 'total':
-                                    $column.text((item.price * item.quantity).toFixed(options.precision.price));
+                                    $column.text(
+                                        [
+                                            (options.currency.position === 'before' ? options.currency.symbol : ''),
+                                            (item.price * item.quantity).toFixed(options.precision.price),
+                                            (options.currency.position === 'after' ? options.currency.symbol : '')
+                                        ].join('')
+                                    );
                                     break;
                                 case 'remove':
                                     $column.html(
@@ -293,8 +314,8 @@
                     // append system line with all item data
                     $items.append(
                         $('<input ' + options.selectors['cart-data'] + '>')
-                            .attr('type', 'number')
-                            .attr('name', 'items[' + item.uuid + ']')
+                            .attr('type', 'text')
+                            .attr('name', 'item[' + item.uuid + ']')
                             .val(JSON.stringify(item))
                     );
                     
@@ -485,10 +506,14 @@
          */
         cartTotal() {
             if (cart.length) {
-                return Object.keys(cart)
-                    .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
-                    .reduce((a, b) => a + b)
-                    .toFixed(options.precision.price);
+                return [
+                    (options.currency.position === 'before' ? options.currency.symbol : ''),
+                    Object.keys(cart)
+                        .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
+                        .reduce((a, b) => a + b)
+                        .toFixed(options.precision.price),
+                    (options.currency.position === 'after' ? options.currency.symbol : '')
+                ].join('')
             }
             
             return 0;
@@ -500,8 +525,7 @@
          * @return {Promise<void>}
          */
         async cartCheckout($fields) {
-            let error = false,
-                data = new FormData();
+            let data = new FormData();
             
             $fields.each((i, el) => {
                 if (el.required === true && el.value === '') {
@@ -518,27 +542,25 @@
                 
                 data.append(el.name, el.value);
             });
+        
+            triggerEvent('cart:checkout:before', data);
             
-            if (!error) {
-                triggerEvent('cart:checkout:before', $fields);
-                
-                $.ajax({
+            $.ajax({
                     url: options.cart.url || location.pathname,
                     type: 'POST',
-                    data: data,
+                    data,
                     contentType: false,
                     cache: false,
                     processData: false,
                     success: (res) => {
                         this.cartRemoveAll();
-                        triggerEvent('cart:checkout:after', $fields);
+                        triggerEvent('cart:checkout:after', data);
                         
                         if (res) {
                             location = res.redirect;
                         }
                     }
                 });
-            }
         }
     }(window.catalog || {});
     
@@ -553,12 +575,12 @@
         
         switch (tag) {
             case 'root':
-                selector = '<div class="container">';
+                selector = '<div>';
                 break;
             case 'table': {
                 switch (options.cart.style) {
                     case 'table':
-                        selector = '<table class="table">';
+                        selector = '<table>';
                         break;
                     case 'div':
                         selector = '<div>';
