@@ -1,0 +1,202 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+<style>
+    body {
+        background: #e8cbc0;
+        background: -webkit-linear-gradient(to right, #e8cbc0, #636fa4);
+        background: linear-gradient(to right, #e8cbc0, #636fa4);
+        min-height: 100vh;
+    }
+    
+    [data-catalog-cart] input,
+    [data-catalog-cart] button {
+        display: block;
+        margin: 0 auto;
+        padding: 0 10px;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    [data-catalog-cart] input {
+        width: 100%;
+        text-align: center;
+    }
+    [data-catalog-cart] button {
+        color: #fff;
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+</style>
+
+<!-- For demo purpose -->
+<div class="container pt-5">
+    <div class="row text-center text-white">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4">SimpleCart</h1>
+            <p class="lead mb-0">A simple JavaScript shopping cart that you can setup in minutes.</p>
+            <p class="lead">Snippet by <a href="https://github.com/0x12f" class="text-white"><u>0x12f</u></a></p>
+        </div>
+    </div>
+</div>
+<!-- End -->
+
+<!-- Cart stats -->
+<div class="container pb-5">
+    <div class="row text-center text-white">
+        <div class="col-lg-8 mx-auto">
+            In cart <span data-catalog-cart-count>0</span> items
+            total cost <span data-catalog-cart-total>0</span>$
+        </div>
+    </div>
+</div>
+<!-- End -->
+
+<div class="container">
+    <div class="row text-center">
+        <!-- Catalog item -->
+        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5>Shoes</h5>
+                    <h4 class="card-title"><strong><a href="">Product 1</a></strong></h4>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <span class="float-left p-1">49$</span>
+                    <span class="float-right">
+                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                    </span>
+                </div>
+                <div style="display: none;">
+                    <span data-catalog-item-attr="uuid">1</span>
+                    <span data-catalog-item-attr="title">Product 1</span>
+                    <span data-catalog-item-attr="vendorcode">303.449.11</span>
+                    <span data-catalog-item-attr="price">49.00</span>
+                </div>
+            </div>
+        </div>
+        <!-- End -->
+        
+        <!-- Catalog item -->
+        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5>Shoes</h5>
+                    <h4 class="card-title"><strong><a href="">Product 2</a></strong></h4>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <span class="float-left p-1">59$</span>
+                    <span class="float-right">
+                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                    </span>
+                </div>
+                <div style="display: none;">
+                    <span data-catalog-item-attr="uuid">2</span>
+                    <span data-catalog-item-attr="title">Product 2</span>
+                    <span data-catalog-item-attr="vendorcode">301.445.12</span>
+                    <span data-catalog-item-attr="price">59.00</span>
+                </div>
+            </div>
+        </div>
+        <!-- End -->
+        
+        <!-- Catalog item -->
+        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5>Shoes</h5>
+                    <h4 class="card-title"><strong><a href="">Product 3</a></strong></h4>
+                    <p class="card-text">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <span class="float-left p-1">64$</span>
+                    <span class="float-right">
+                        <a href="#" class="btn btn-sm btn-link" data-catalog-item-add>In cart</a>
+                    </span>
+                </div>
+                <div style="display: none;">
+                    <span data-catalog-item-attr="uuid">3</span>
+                    <span data-catalog-item-attr="title">Product 3</span>
+                    <span data-catalog-item-attr="vendorcode">302.422.14</span>
+                    <span data-catalog-item-attr="price">64.00</span>
+                </div>
+            </div>
+        </div>
+        <!-- End -->
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="card">
+        <div class="card-body">
+            <div data-catalog-cart></div>
+    
+            <hr>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="firstName">First name</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="lastName">Last name</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+    
+                    <label for="email">Email (optional)</label>
+                    <input type="text" id="email" class="form-control mb-4" placeholder="youremail@example.com">
+                </div>
+                
+                <div class="col-lg-6">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" class="form-control mb-4" placeholder="1234 Main St" required>
+    
+                    <label for="address-2">Address 2 (optional)</label>
+                    <input type="text" id="address-2" class="form-control mb-4" placeholder="Apartment or suite">
+                </div>
+    
+                <div class="col-lg-10 d-block mx-auto">
+                    <button class="btn btn-primary btn-lg btn-block waves-effect waves-light" data-catalog-cart-checkout type="button">Place order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    window.catalog = {
+        cart: {
+            columns: [
+                {label: 'Title', attr: 'title', view: null, class: null, style: 'text-align: center;'},
+                {label: 'Code', attr: 'vendorcode', view: null, class: null, style: 'text-align: center;'},
+                {label: '-', attr: 'decrement', view: null, class: null, style: 'width: 10%; text-align: center;'},
+                {label: 'Quantity', attr: 'quantity', view: null, class: null, style: 'width: 15%;'},
+                {label: '+', attr: 'increment', view: null, class: null, style: 'width: 10%; text-align: center;'},
+                {label: 'Cost', attr: 'price', view: null, class: null, style: 'text-align: center;'},
+                {label: 'Total', attr: 'total', view: null, class: null, style: 'text-align: center;'},
+                {label: 'Remove', attr: 'remove', view: null, class: null, style: 'text-align: center;'},
+            ],
+            columns_header: true,
+            style: 'table'
+        },
+        precision: {
+            count: 0,
+            price: 0,
+        },
+        events: {
+            'on:cart:add': (data) => {
+                alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
+            }
+        }
+    }
+</script>
+<script src="/simplecart.js"></script>
