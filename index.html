@@ -67,7 +67,7 @@
 
 <div class="container">
     <div class="row text-center">
-        <!-- Catalog item -->
+        <!-- Shelf item -->
         <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
             <div class="card text-center">
                 <div class="card-body">
@@ -92,7 +92,7 @@
         </div>
         <!-- End -->
         
-        <!-- Catalog item -->
+        <!-- Shelf item -->
         <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
             <div class="card text-center">
                 <div class="card-body">
@@ -117,7 +117,7 @@
         </div>
         <!-- End -->
         
-        <!-- Catalog item -->
+        <!-- Shelf item -->
         <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
             <div class="card text-center">
                 <div class="card-body">
@@ -223,6 +223,7 @@
                 alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
             },
             'on:cart:checkout:before': formData => {
+                // For demo purpose
                 let object = {};
                 
                 formData.forEach(function (value, key) {
@@ -235,6 +236,7 @@
                         return '<br>' + '&nbsp;'.repeat(p1.length);
                     })
                 );
+                // For demo purpose
             }
         }
     }

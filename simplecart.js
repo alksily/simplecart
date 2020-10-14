@@ -104,10 +104,10 @@
             options = merge({}, defaults, params);
             cart = readCartData();
             
-            let focus = null;
-            
             // auto init listeners
             if (options.init.listeners) {
+                let focus = null;
+                
                 $window.on('event:catalog:ready event:catalog:cart event:catalog:cart:add event:catalog:cart:update event:catalog:cart:remove event:catalog:cart:remove:all', () => {
                     let $cart = $(getSelector('cart')).html(this.cartRender());
                     $(getSelector('count-items')).text(this.cartCount());
@@ -522,7 +522,7 @@
         
         /**
          * Checkout cart
-         * @param $fields list of cart items (by selector 'cart-data')
+         * @param $fields list of cart data (by selector 'cart-data')
          * @return {Promise<void>}
          */
         async cartCheckout($fields) {
