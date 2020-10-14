@@ -69,6 +69,7 @@
         selectors: {
             'item': 'data-catalog-item', // item (e.g. product or service in catalog)
             'item-attr': 'data-catalog-item-attr', // item attr (price, color, etc)
+            'item-attr-value': 'data-catalog-item-attr-value', // item attr value
             'item-add': 'data-catalog-item-add', // button add to cart
             'cart': 'data-catalog-cart', // cart place
             'cart-data': 'data-catalog-cart-data', // cart data (client field: name, phone, etc)
@@ -350,7 +351,7 @@
             $item.find(getSelector('item-attr')).each((i, item) => {
                 let $item = $(item);
                 
-                properties[$item.attr(attr)] = $item.val() || $item.text() || '';
+                properties[$item.attr(attr)] = $item.val() || $item.text() || $item.attr(getAttrName('item-attr-value')) || '';
             });
             
             return this.cartAddItem(properties);
