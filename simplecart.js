@@ -80,14 +80,14 @@
         
         // events handlers
         events: {
-            'on:ready': null,
-            'on:cart': null,
-            'on:cart:add': null,
-            'on:cart:update': null,
-            'on:cart:remove': null,
-            'on:cart:remove:all': null,
-            'on:cart:checkout:before': null,
-            'on:cart:checkout:after': null,
+            'on:ready': null, // (cart) => {}
+            'on:cart': null, // (cart) => {}
+            'on:cart:add': null, // (new_item, cart) => {}
+            'on:cart:update': null, // (updated_item, cart) => {}
+            'on:cart:remove': null, // (cart) => {}
+            'on:cart:remove:all': null, // (cart) => {}
+            'on:cart:checkout:before': null, // ({FormData}, cart) => {}
+            'on:cart:checkout:after': null, // ({FormData}, cart) => {}
         }
     };
     
@@ -163,14 +163,14 @@
             if (options.cart.columns_header) {
                 for (let column of options.cart.columns) {
                     let $column = $Tag('th').attr('data-attr', column.attr).html(column.label);
-        
+                    
                     if (column.class) {
                         $column.addClass(column.class);
                     }
                     if (column.style) {
                         $column.attr('style', column.style);
                     }
-        
+                    
                     $thead.append($column);
                 }
             }
@@ -407,6 +407,10 @@
         cartItemIncrement(value, field = 'uuid') {
             let index = this.cartFindItemByField(value, field);
             
+            if (cart[index].quantity <= 0) {
+                this.cartRemoveItemById(index);
+            }
+            
             if (index >= 0) {
                 cart[index].quantity += cart[index].quantity_step || 1;
                 triggerEvent('cart:update', cart[index]);
@@ -425,7 +429,7 @@
             if (index >= 0) {
                 cart[index].quantity -= cart[index].quantity_step || 1;
                 
-                if (cart[index].quantity === 0) {
+                if (cart[index].quantity <= 0) {
                     this.cartRemoveItemById(index);
                 }
                 
@@ -446,7 +450,7 @@
             if (index >= 0) {
                 cart[index].quantity = +count;
                 
-                if (cart[index].quantity === 0) {
+                if (cart[index].quantity <= 0) {
                     this.cartRemoveItemById(index);
                 }
                 
@@ -466,7 +470,7 @@
                 saveCartData(cart);
             }
         }
-    
+        
         /**
          * Remove item from cart by value of field
          * @param value
@@ -477,7 +481,7 @@
                 this.cartFindItemByField(value, field)
             );
         }
-    
+        
         /**
          * Remove all items from cart
          */
@@ -500,7 +504,7 @@
             
             return 0;
         }
-    
+        
         /**
          * Total price of items in cart
          * @return {string|number}
@@ -543,25 +547,25 @@
                 
                 data.append(el.name, el.value);
             });
-        
+            
             triggerEvent('cart:checkout:before', data);
             
             $.ajax({
-                    url: options.cart.url || location.pathname,
-                    type: 'POST',
-                    data,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: (res) => {
-                        this.cartRemoveAll();
-                        triggerEvent('cart:checkout:after', data);
-                        
-                        if (res) {
-                            location = res.redirect;
-                        }
+                url: options.cart.url || location.pathname,
+                type: 'POST',
+                data,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: (res) => {
+                    this.cartRemoveAll();
+                    triggerEvent('cart:checkout:after', data);
+                    
+                    if (res) {
+                        location = res.redirect;
                     }
-                });
+                }
+            });
         }
     }(window.catalog || {});
     
