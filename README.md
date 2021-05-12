@@ -2,7 +2,7 @@ SimpleCart.js
 ====
 _(Simple JavaScript code for eCommerce catalog cart)_
 
-See our demo version: https://0x12f.github.io/simplecart/
+See our demo version: https://getwebspace.github.io/simplecart/
 
 A simple javascript shopping cart that you can setup in minutes. It's lightweight, fast, simple to use, and completely customizable.
 
