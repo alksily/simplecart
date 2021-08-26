@@ -142,7 +142,7 @@
             }
             
             // ready
-            triggerEvent('ready', cart);
+            setTimeout(() => triggerEvent('ready', cart), 10);
         }
         
         /**
