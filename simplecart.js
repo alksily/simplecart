@@ -304,7 +304,7 @@
                             }
                         } else {
                             // custom view
-                            $column.html(column.view);
+                            $column.html(typeof column.view === 'function' ? column.view(item) : column.view);
                         }
                         
                         $row.append($column);
