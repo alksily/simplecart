@@ -4,17 +4,17 @@
         console.warn('Simple cart need jQuery');
         return;
     }
-    
+
     const defaults = {
         // localstorage key
         storage: 'catalog-cart',
-        
+
         // auto init functions
         init: {
             listeners: true,
             handlers: true,
         },
-        
+
         // cart view options
         cart: {
             // cart column headers
@@ -29,42 +29,35 @@
                 {label: 'Total', attr: 'total', view: null, class: null, style: 'text-align: right;'},
                 {label: 'Remove', attr: 'remove', view: null, class: null, style: 'text-align: center;'},
             ],
-            
+
             // showing header
             columns_header: true,
-            
+
             // showing items group title
             group_header: true,
-            
+
             // table style ('table' or 'div')
             style: 'table',
-            
+
             // cart table class
             class: {
                 table: 'table',
                 container: 'cart-container',
             },
-            
+
             // cart handler url
             url: '',
         },
-        
+
         // item type by default (e.g. 'product')
         item_type: 'product',
-        
-        // precision settings
-        // count of zeros after the decimal point
-        precision: {
-            count: 0, // in item counts
-            price: 2, // in item prices and totals
+
+        // format settings
+        format: {
+            count: [undefined, {}], // in item counts
+            price: [undefined, {}], // in item prices and totals
         },
-        
-        // currency
-        currency: {
-            position: 'after', // or 'before'
-            symbol: '',
-        },
-        
+
         // default selectors
         selectors: {
             'item': 'data-catalog-item', // item (e.g. product or service in catalog)
@@ -77,7 +70,7 @@
             'count-items': 'data-catalog-cart-count', // counter place (count items in cart)
             'count-total': 'data-catalog-cart-total', // counter place (count total price of items)
         },
-        
+
         // events handlers
         events: {
             'on:ready': null, // (cart) => {}
@@ -90,7 +83,7 @@
             'on:cart:checkout:after': null, // ({FormData}, cart) => {}
         }
     };
-    
+
     // private props
     let
         options = {},
@@ -98,27 +91,27 @@
         $window = $(window),
         $document = $(window.document)
     ;
-    
+
     window.catalog = new class {
         constructor(params) {
             options = merge({}, defaults, params);
             cart = readCartData();
-            
+
             // auto init listeners
             if (options.init.listeners) {
                 let focus = null;
-                
+
                 $window.on('event:catalog:ready event:catalog:cart event:catalog:cart:add event:catalog:cart:update event:catalog:cart:remove event:catalog:cart:remove:all', () => {
                     let $cart = $(getSelector('cart')).html(this.cartRender());
-                    
+
                     $(getSelector('count-items')).attr(options.selectors['count-items'], this.cartCount()).text(this.cartCount());
                     $(getSelector('count-total')).attr(options.selectors['count-total'], this.cartCount()).text(this.cartTotal());
-                    
+
                     if (focus) {
                         $cart.find('[data-uuid="' + focus + '"] [data-attr="quantity"] input').focus();
                     }
                 });
-                
+
                 // handler focus in cart
                 $(getSelector('cart'))
                     .on('focus', '[data-attr="quantity"] input', (e) => {
@@ -128,7 +121,7 @@
                         focus = null;
                     });
             }
-            
+
             // auto init handlers
             if (options.init.handlers) {
                 $document.on('click', getSelector('item-add'), (e) => {
@@ -137,15 +130,15 @@
                 $document.on('click', getSelector('cart-checkout'), (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     this.cartCheckout($(getSelector('cart-data')));
                 });
             }
-            
+
             // ready
             setTimeout(() => triggerEvent('ready', cart), 10);
         }
-        
+
         /**
          * Render cart in jQuery object
          * @return {*|jQuery|HTMLElement}
@@ -159,30 +152,30 @@
                 $tbody = $Tag('tbody'),
                 $items = $Tag('items')
             ;
-            
+
             // table head
             if (options.cart.columns_header) {
                 for (let column of options.cart.columns) {
                     let $column = $Tag('th').attr('data-attr', column.attr).html(column.label);
-                    
+
                     if (column.class) {
                         $column.addClass(column.class);
                     }
                     if (column.style) {
                         $column.attr('style', column.style);
                     }
-                    
+
                     $thead.append($column);
                 }
             }
-            
+
             // table body
             let grouped = groupBy(cart, 'group');
             for (let title in grouped) {
                 if (!grouped.hasOwnProperty(title)) {
                     continue;
                 }
-                
+
                 // group title
                 if (options.cart.group_header && title) {
                     $tbody.append(
@@ -196,27 +189,27 @@
                             )
                     );
                 }
-                
+
                 // cart items
                 for (let item of grouped[title]) {
                     let $row = $Tag('tr')
                         .attr('data-uuid', item.uuid)
                         .attr('data-type', item.type)
                     ;
-                    
+
                     for (let column of options.cart.columns) {
                         let $column = $Tag('td')
                             .attr('data-label', column.label)
                             .attr('data-attr', column.attr)
                         ;
-                        
+
                         if (column.class) {
                             $column.addClass(column.class);
                         }
                         if (column.style) {
                             $column.attr('style', column.style);
                         }
-                        
+
                         if (!column.view) {
                             // draw by column type
                             switch (column.attr) {
@@ -266,7 +259,7 @@
                                         $('<input>')
                                             .attr('type', 'number')
                                             .attr('step', item.quantity_step || 1)
-                                            .val(item.quantity.toFixed(options.precision.count))
+                                            .val(item.quantity.toLocaleString(...options.format.count).replace(',', '.')) // I'm shocked too
                                             .on('change', (e) => {
                                                 this.cartItemChangeCount($(e.currentTarget).val(), item.uuid, 'uuid');
                                             })
@@ -274,20 +267,12 @@
                                     break;
                                 case 'price':
                                     $column.text(
-                                        [
-                                            (options.currency.position === 'before' ? options.currency.symbol : ''),
-                                            (item.price).toFixed(options.precision.price),
-                                            (options.currency.position === 'after' ? options.currency.symbol : '')
-                                        ].join('')
+                                        (item.price).toLocaleString(...options.format.price)
                                     );
                                     break;
                                 case 'total':
                                     $column.text(
-                                        [
-                                            (options.currency.position === 'before' ? options.currency.symbol : ''),
-                                            (item.price * item.quantity).toFixed(options.precision.price),
-                                            (options.currency.position === 'after' ? options.currency.symbol : '')
-                                        ].join('')
+                                        (item.price * item.quantity).toLocaleString(...options.format.price)
                                     );
                                     break;
                                 case 'remove':
@@ -307,12 +292,12 @@
                             // custom view
                             $column.html(typeof column.view === 'function' ? column.view(item) : column.view);
                         }
-                        
+
                         $row.append($column);
                     }
-                    
+
                     $tbody.append($row);
-                    
+
                     // append system line with all item data
                     $items.append(
                         $('<input ' + options.selectors['cart-data'] + '>')
@@ -320,7 +305,7 @@
                             .attr('name', 'item[' + item.uuid + ']')
                             .val(JSON.stringify(item))
                     );
-                    
+
                     // append system line with uuid => quantity
                     $items.append(
                         $('<input ' + options.selectors['cart-data'] + '>')
@@ -330,7 +315,7 @@
                     );
                 }
             }
-            
+
             return $root
                 .append(
                     $table
@@ -339,7 +324,7 @@
                 )
                 .append($items);
         }
-        
+
         /**
          * Add item to cart by jQuery object
          * @param $item
@@ -348,16 +333,16 @@
         cartAddItemFromJQuery($item) {
             let properties = {},
                 attr = getAttrName('item-attr');
-            
+
             $item.find(getSelector('item-attr')).each((i, item) => {
                 let $item = $(item);
-                
+
                 properties[$item.attr(attr)] = $item.val() || $item.text() || $item.attr(getAttrName('item-attr-value')) || '';
             });
-            
+
             return this.cartAddItem(properties);
         }
-        
+
         /**
          * Add item to cart (if duplicate - increment quantity)
          * @param properties
@@ -377,12 +362,12 @@
                     'quantity_step': 1,
                     'type': options.item_type,
                 };
-            
+
             properties = merge({}, defaults, properties);
             properties['price'] = properties['price'] ? +properties['price'] : 0;
             properties['quantity'] = properties['quantity'] ? +properties['quantity'] : 1;
             properties['quantity_step'] = properties['quantity_step'] ? +properties['quantity_step'] : 1;
-            
+
             if ((index = this.cartFindItemByField(properties['uuid'], 'uuid')) >= 0) {
                 cart[index].quantity += (+properties['quantity']);
                 triggerEvent('cart:update', cart[index]);
@@ -391,15 +376,15 @@
                 triggerEvent('cart:add', properties);
             }
             saveCartData(cart);
-            
+
             return cart.length;
         }
-        
+
         // find item index by field value
         cartFindItemByField(value, field = 'uuid') {
             return cart.findIndex(obj => obj[field] === value);
         }
-        
+
         /**
          * Increment item quantity
          * @param value
@@ -407,18 +392,18 @@
          */
         cartItemIncrement(value, field = 'uuid') {
             let index = this.cartFindItemByField(value, field);
-            
+
             if (cart[index].quantity <= 0) {
                 this.cartRemoveItemById(index);
             }
-            
+
             if (index >= 0) {
                 cart[index].quantity += cart[index].quantity_step || 1;
                 triggerEvent('cart:update', cart[index]);
                 saveCartData(cart);
             }
         }
-        
+
         /**
          * Decrement item quantity
          * @param value
@@ -426,19 +411,19 @@
          */
         cartItemDecrement(value, field = 'uuid') {
             let index = this.cartFindItemByField(value, field);
-            
+
             if (index >= 0) {
                 cart[index].quantity -= cart[index].quantity_step || 1;
-                
+
                 if (cart[index].quantity <= 0) {
                     this.cartRemoveItemById(index);
                 }
-                
+
                 triggerEvent('cart:update', cart[index]);
                 saveCartData(cart);
             }
         }
-        
+
         /**
          * Change item quantity
          * @param count
@@ -447,19 +432,19 @@
          */
         cartItemChangeCount(count, value, field = 'uuid') {
             let index = this.cartFindItemByField(value, field);
-            
+
             if (index >= 0) {
                 cart[index].quantity = +count;
-                
+
                 if (cart[index].quantity <= 0) {
                     this.cartRemoveItemById(index);
                 }
-                
+
                 triggerEvent('cart:update', cart[index]);
                 saveCartData(cart);
             }
         }
-        
+
         /**
          * Remove item from cart by index
          * @param index
@@ -471,7 +456,7 @@
                 saveCartData(cart);
             }
         }
-        
+
         /**
          * Remove item from cart by value of field
          * @param value
@@ -482,7 +467,7 @@
                 this.cartFindItemByField(value, field)
             );
         }
-        
+
         /**
          * Remove all items from cart
          */
@@ -491,40 +476,38 @@
             triggerEvent('cart:remove:all', cart);
             saveCartData(cart);
         }
-        
+
         /**
          * Count of titles in cart by item_type
          * @return {string|number}
          */
-        cartCount() {
+        cartCount(ret_str = true) {
             if (cart.length) {
-                return cart
-                    .reduce((count, item) => item['type'] === options.item_type ? count + 1 : count, 0)
-                    .toFixed(options.precision.count);
+                let count = cart
+                    .reduce((count, item) => item['type'] === options.item_type ? count + 1 : count, 0);
+
+                return !ret_str ? count : count.toLocaleString(...options.format.count);
             }
-            
+
             return 0;
         }
-        
+
         /**
          * Total price of items in cart
          * @return {string|number}
          */
-        cartTotal() {
+        cartTotal(ret_str = true) {
             if (cart.length) {
-                return [
-                    (options.currency.position === 'before' ? options.currency.symbol : ''),
-                    Object.keys(cart)
-                        .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
-                        .reduce((a, b) => a + b)
-                        .toFixed(options.precision.price),
-                    (options.currency.position === 'after' ? options.currency.symbol : '')
-                ].join('')
+                let price = Object.keys(cart)
+                    .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
+                    .reduce((a, b) => a + b);
+
+                return !ret_str ? price : price.toLocaleString(...options.format.price);
             }
-            
+
             return 0;
         }
-        
+
         /**
          * Checkout cart
          * @param $fields list of cart data (by selector 'cart-data')
@@ -532,7 +515,7 @@
          */
         async cartCheckout($fields) {
             let data = new FormData();
-            
+
             $fields.each((i, el) => {
                 if (el.required === true && el.value === '') {
                     el.classList.add('check-error');
@@ -545,12 +528,12 @@
                         throw new Error('Invalid E-Mail address');
                     }
                 }
-                
+
                 data.append(el.name, el.value);
             });
-            
+
             triggerEvent('cart:checkout:before', data);
-            
+
             $.ajax({
                 url: options.cart.url || location.pathname,
                 type: 'POST',
@@ -561,7 +544,7 @@
                 success: (res) => {
                     this.cartRemoveAll();
                     triggerEvent('cart:checkout:after', data);
-                    
+
                     if (res) {
                         location = res.redirect;
                     }
@@ -569,7 +552,7 @@
             });
         }
     }(window.catalog || {});
-    
+
     /**
      * Generate element of cart structure by cart style
      *
@@ -578,7 +561,7 @@
      */
     function cartRenderGet$El(tag) {
         let selector = '';
-        
+
         switch (tag) {
             case 'root':
                 selector = '<div>';
@@ -653,10 +636,10 @@
                 selector = '<div style="display: none;">';
                 break;
         }
-        
+
         return $(selector);
     }
-    
+
     /**
      * Read cart data from localstorage
      * @return {any}
@@ -664,7 +647,7 @@
     function readCartData() {
         return JSON.parse(localStorage.getItem(options.storage) || '[]');
     }
-    
+
     /**
      * Save cart data to localstorage
      */
@@ -672,7 +655,7 @@
         localStorage.setItem(options.storage, JSON.stringify(cart));
         triggerEvent('cart', cart);
     }
-    
+
     /**
      * Return selector name
      * @param selector
@@ -681,7 +664,7 @@
     function getAttrName(selector) {
         return options.selectors[selector];
     }
-    
+
     /**
      * Generate selector
      * @param selector
@@ -691,7 +674,7 @@
     function getSelector(selector, value = false) {
         return '[' + getAttrName(selector) + (value ? '="' + value + '"' : '') + ']';
     }
-    
+
     /**
      * Event trigger
      * @param event
@@ -699,13 +682,13 @@
      */
     function triggerEvent(event, data) {
         $window.trigger('event:catalog:' + event, data, cart);
-        
+
         // вызывает обработчик
         if (options.events['on:' + event]) {
             options.events['on:' + event](data, cart);
         }
     }
-    
+
     /**
      * Cart item grouping
      * @param array
@@ -718,7 +701,7 @@
             return rv;
         }, {});
     }
-    
+
     /**
      * Checks if item is object
      * @param item
@@ -727,7 +710,7 @@
     function isObject(item) {
         return (item && typeof item === 'object' && !Array.isArray(item));
     }
-    
+
     /**
      * Merge two objects
      * @param target
@@ -737,7 +720,7 @@
     function merge(target, ...sources) {
         if (sources.length) {
             const source = sources.shift();
-            
+
             if (isObject(target) && isObject(source)) {
                 for (const key in source) {
                     if (source.hasOwnProperty(key)) {
@@ -750,10 +733,10 @@
                     }
                 }
             }
-            
+
             return merge(target, ...sources);
         }
-        
+
         return target;
     }
 })(window.jQuery);

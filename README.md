@@ -63,14 +63,11 @@ If you want to change options, like the precision or currency, you can do that a
 ```javascript
 window.catalog = {
     cart: { /* ... */ },
-    
-    precision: {
-        count: 0, // in items counts
-        price: 2, // in items prices and totals
-    },
-    currency: {
-        position: 'after', // or 'before'
-        symbol: '$',
+
+    // format settings
+    format: {
+        count: ['en_US', {minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item counts
+        price: ['en_US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item prices and totals
     },
 }
 ```
@@ -87,7 +84,7 @@ To sell items, you add them to your "Shelf" by simply adding a few `attributes` 
             <h4 class="card-title"><strong><a href="" data-catalog-item-attr="title">Product 3</a></strong></h4>
         </div>
         <div class="card-footer text-muted">
-            <span class="float-left p-1" data-catalog-item-attr="price">64$</span>
+            <span class="float-left p-1" data-catalog-item-attr="price" data-catalog-item-attr-value="64">64 $</span>
             <span class="float-right">
                 <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
             </span>
