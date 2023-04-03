@@ -267,12 +267,12 @@
                                     break;
                                 case 'price':
                                     $column.text(
-                                        (item.price).toLocaleString(...options.format.price)
+                                        (item[item.price_type]).toLocaleString(...options.format.price)
                                     );
                                     break;
                                 case 'total':
                                     $column.text(
-                                        (item.price * item.quantity).toLocaleString(...options.format.price)
+                                        (item[item.price_type] * item.quantity).toLocaleString(...options.format.price)
                                     );
                                     break;
                                 case 'remove':
@@ -313,6 +313,14 @@
                             .attr('name', 'list[' + item.uuid + ']')
                             .val(item.quantity)
                     );
+
+                    // append system line with uuid => price_type
+                    $items.append(
+                        $('<input ' + options.selectors['cart-data'] + '>')
+                            .attr('type', 'text')
+                            .attr('name', 'list[' + item.uuid + '][price_type]')
+                            .val(item.price_type)
+                    );
                 }
             }
 
@@ -352,19 +360,24 @@
             let index,
                 defaults = {
                     'uuid': '',
+                    'title': '',
                     'url': '',
                     'thumb': '',
-                    'title': '',
-                    'price': 0,
                     'vendorcode': '',
-                    'group': '',
+                    'price': 0,
+                    'price_wholesale': 0,
+                    'price_wholesale_from': 0,
+                    'price_type': 'price', // price, price_wholesale
                     'quantity': 1,
                     'quantity_step': 1,
+                    'group': '',
                     'type': options.item_type,
                 };
 
             properties = merge({}, defaults, properties);
             properties['price'] = properties['price'] ? +properties['price'] : 0;
+            properties['price_wholesale'] = properties['price_wholesale'] ? +properties['price_wholesale'] : 0;
+            properties['price_wholesale_from'] = properties['price_wholesale_from'] ? +properties['price_wholesale_from'] : 0;
             properties['quantity'] = properties['quantity'] ? +properties['quantity'] : 1;
             properties['quantity_step'] = properties['quantity_step'] ? +properties['quantity_step'] : 1;
 
@@ -393,14 +406,8 @@
         cartItemIncrement(value, field = 'uuid') {
             let index = this.cartFindItemByField(value, field);
 
-            if (cart[index].quantity <= 0) {
-                this.cartRemoveItemById(index);
-            }
-
             if (index >= 0) {
-                cart[index].quantity += cart[index].quantity_step || 1;
-                triggerEvent('cart:update', cart[index]);
-                saveCartData(cart);
+                this.cartItemChangeCountById(index, cart[index].quantity + (cart[index].quantity_step || 1));
             }
         }
 
@@ -413,14 +420,7 @@
             let index = this.cartFindItemByField(value, field);
 
             if (index >= 0) {
-                cart[index].quantity -= cart[index].quantity_step || 1;
-
-                if (cart[index].quantity <= 0) {
-                    this.cartRemoveItemById(index);
-                }
-
-                triggerEvent('cart:update', cart[index]);
-                saveCartData(cart);
+                this.cartItemChangeCountById(index, cart[index].quantity - (cart[index].quantity_step || 1));
             }
         }
 
@@ -434,7 +434,27 @@
             let index = this.cartFindItemByField(value, field);
 
             if (index >= 0) {
+                this.cartItemChangeCountById(index, count);
+            }
+        }
+
+        /**
+         * Change item quantity by id
+         * @param index
+         * @param count
+         */
+        cartItemChangeCountById(index, count) {
+            if (index >= 0 && cart[index]) {
                 cart[index].quantity = +count;
+
+                if (
+                    cart[index].price_wholesale_from > 0 &&
+                    cart[index].quantity >= cart[index].price_wholesale_from
+                ) {
+                    cart[index].price_type = 'price_wholesale';
+                } else {
+                    cart[index].price_type = 'price';
+                }
 
                 if (cart[index].quantity <= 0) {
                     this.cartRemoveItemById(index);
@@ -499,8 +519,8 @@
         cartTotal(ret_str = true) {
             if (cart.length) {
                 let price = Object.keys(cart)
-                    .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
-                    .reduce((a, b) => a + b);
+                        .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f].price : 0)
+                        .reduce((a, b) => a + b);
 
                 return !ret_str ? price : price.toLocaleString(...options.format.price);
             }
@@ -542,10 +562,10 @@
                 cache: false,
                 processData: false,
                 success: (res) => {
-                    this.cartRemoveAll();
                     triggerEvent('cart:checkout:after', data);
 
-                    if (res) {
+                    if (res && res.redirect) {
+                        this.cartRemoveAll();
                         location = res.redirect;
                     }
                 }
