@@ -217,12 +217,6 @@
             table_class: 'table table-striped'
         },
 
-        // format settings
-        format: {
-            count: ['en_US', {minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item counts
-            price: ['en_US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item prices and totals
-        },
-
         events: {
             'on:cart:add': (data) => {
                 alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
