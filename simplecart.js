@@ -45,6 +45,9 @@
                 container: 'cart-container',
             },
 
+            // before redirect
+            delay: 10,
+
             // cart handler url
             url: '',
         },
@@ -566,7 +569,9 @@
 
                     if (res && res.redirect) {
                         this.cartRemoveAll();
-                        location = res.redirect;
+
+                        // flexibility
+                        setTimeout(() => location = res.redirect, options.cart.delay);
                     }
                 }
             });
