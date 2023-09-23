@@ -388,7 +388,7 @@
             properties['price_type'] = properties['price_wholesale_from'] > 0 && properties['quantity'] >= properties['price_wholesale_from'] ? 'price_wholesale' : 'price';
 
             if ((index = this.cartFindItemByField(properties['uuid'], 'uuid')) >= 0) {
-                this.cartItemChangeCountById(index, cart[index].quantity + Math.max(properties['quantity'], properties['quantity_step']));
+                this.cartItemChangeCountById(index, cart[index].quantity + properties['quantity']);
             } else {
                 cart.push(properties);
                 triggerEvent('cart:add', properties);
