@@ -52,13 +52,33 @@
             url: '',
         },
 
+        delivery: {
+            // Example:
+            // "Delivery and free condition": [
+            //     {
+            //         "uuid": "00000000-0000-0000-0000-000000000000", // catalog product with type 'service'
+            //         "condition": "0" // cart total must be great
+            //     },
+            //     {
+            //         "uuid": "00000000-0000-0000-0000-000000000000",
+            //         "condition": "150"
+            //     }
+            // ],
+        },
+
+        payment: {
+            // Example:
+            // "00000000-0000-0000-0000-000000000000": "Cash",
+            // "00000000-0000-0000-0000-000000000001": "Card"
+        },
+
         // item type by default (e.g. 'product')
         item_type: 'product',
 
         // format settings
         format: {
-            count: [undefined, {}], // in item counts
-            price: [undefined, {}], // in item prices and totals
+            count: {decimalPlaces: 2, thousandsSeparator: ',', decimalSeparator: '.'}, // in item counts
+            price: {decimalPlaces: 2, currencySymbolStart: '$',  currencySymbolEnd: '', thousandsSeparator: ',', decimalSeparator: '.'}, // in item prices and totals
         },
 
         // default selectors
@@ -68,16 +88,19 @@
             'item-attr-value': 'data-catalog-item-attr-value', // item attr value
             'item-add': 'data-catalog-item-add', // button add to cart
             'cart': 'data-catalog-cart', // cart place
+            'cart-delivery': 'data-catalog-cart-delivery', // select delivery
+            'cart-payment': 'data-catalog-cart-payment', // select payment method
             'cart-data': 'data-catalog-cart-data', // cart data (client field: name, phone, etc)
             'cart-checkout': 'data-catalog-cart-checkout', // button cart checkout
             'count-items': 'data-catalog-cart-count', // counter place (count items in cart)
             'count-total': 'data-catalog-cart-total', // counter place (count total price of items)
+            'count-total-service': 'data-catalog-cart-total-service', // counter place (count total price of service)
+            'count-total-all': 'data-catalog-cart-total-all', // counter place (count total)
         },
 
         // events handlers
         events: {
             'on:ready': null, // (cart) => {}
-            'on:cart': null, // (cart) => {}
             'on:cart:add': null, // (new_item, cart) => {}
             'on:cart:update': null, // (updated_item, cart) => {}
             'on:cart:remove': null, // (cart) => {}
@@ -91,6 +114,7 @@
     let
         options = {},
         cart = {},
+        delivery = null,
         $window = $(window),
         $document = $(window.document)
     ;
@@ -104,11 +128,20 @@
             if (options.init.listeners) {
                 let focus = null;
 
-                $window.on('event:catalog:ready event:catalog:cart event:catalog:cart:add event:catalog:cart:update event:catalog:cart:remove event:catalog:cart:remove:all', () => {
+                $window.on('event:catalog:ready event:catalog:cart:add event:catalog:cart:update event:catalog:cart:remove event:catalog:cart:remove:all', () => {
+                    // render delivery options
+                    $(getSelector('cart-delivery')).html(this.cartRenderDelivery()).trigger('change');
+
+                    // render payment options
+                    $(getSelector('cart-payment')).html(this.cartRenderPayment());
+
+                    // render cart
                     let $cart = $(getSelector('cart')).html(this.cartRender());
 
-                    $(getSelector('count-items')).attr(options.selectors['count-items'], this.cartCount()).text(this.cartCount());
-                    $(getSelector('count-total')).attr(options.selectors['count-total'], this.cartCount()).text(this.cartTotal());
+                    $(getSelector('count-items')).attr(options.selectors['count-items'], this.cartCount(false)).text(this.cartCount(true));
+                    $(getSelector('count-total')).attr(options.selectors['count-total'], this.cartTotal(false)).text(this.cartTotal(true, options.item_type));
+                    $(getSelector('count-total-service')).attr(options.selectors['count-total-service'], this.cartTotal(false, 'service')).text(this.cartTotal(true, 'service'));
+                    $(getSelector('count-total-all')).attr(options.selectors['count-total'], this.cartTotal(false)).text(this.cartTotal(true, null));
 
                     if (focus) {
                         $cart.find('[data-uuid="' + focus + '"] [data-attr="quantity"] input').focus();
@@ -134,12 +167,22 @@
                     e.preventDefault();
                     e.stopPropagation();
 
-                    this.cartCheckout($(getSelector('cart-data')));
+                    this.cartCheckout($(`${getSelector('cart-data')}, ${getSelector('cart-payment')}`));
                 });
+                $document.on('change', getSelector('cart-delivery'), (e) => {
+                    this.changeDelivery($(e.currentTarget).find('option:selected').data('uuid'));
+                })
             }
 
             // ready
-            setTimeout(() => triggerEvent('ready', cart), 10);
+            setTimeout(() => triggerEvent('ready', cart), 100);
+        }
+
+        /**
+         * Return current cart options
+         */
+        getOptions() {
+            return options;
         }
 
         /**
@@ -195,111 +238,123 @@
 
                 // cart items
                 for (let item of grouped[title]) {
-                    let $row = $Tag('tr')
-                        .attr('data-uuid', item.uuid)
-                        .attr('data-type', item.type)
-                    ;
-
-                    for (let column of options.cart.columns) {
-                        let $column = $Tag('td')
-                            .attr('data-label', column.label)
-                            .attr('data-attr', column.attr)
+                    if (item.type === options.item_type) {
+                        let $row = $Tag('tr')
+                            .attr('data-uuid', item.uuid)
+                            .attr('data-type', item.type)
                         ;
 
-                        if (column.class) {
-                            $column.addClass(column.class);
-                        }
-                        if (column.style) {
-                            $column.attr('style', column.style);
-                        }
+                        for (let column of options.cart.columns) {
+                            let $column = $Tag('td')
+                                .attr('data-label', column.label)
+                                .attr('data-attr', column.attr)
+                            ;
 
-                        if (!column.view) {
-                            // draw by column type
-                            switch (column.attr) {
-                                case 'title':
-                                    $column.html(
-                                        $('<span>')
-                                            .text(item.title)
-                                    );
-                                    break;
-                                case 'url':
-                                    $column.html(
-                                        $('<a>')
-                                            .attr('href', item.url)
-                                            .attr('title', item.title)
-                                            .text(item.title)
-                                    );
-                                    break;
-                                case 'thumb':
-                                    $column.html(
-                                        $('<img>')
-                                            .attr('src', item.thumb)
-                                            .attr('alt', item.title)
-                                    );
-                                    break;
-                                case 'decrement':
-                                    $column.html(
-                                        $('<button>')
-                                            .addClass('btn btn-icon')
-                                            .text('-')
-                                            .on('click', () => {
-                                                this.cartItemDecrement(item.uuid, 'uuid');
-                                            })
-                                    );
-                                    break;
-                                case 'increment':
-                                    $column.html(
-                                        $('<button>')
-                                            .addClass('btn btn-icon')
-                                            .text('+')
-                                            .on('click', () => {
-                                                this.cartItemIncrement(item.uuid, 'uuid');
-                                            })
-                                    );
-                                    break;
-                                case 'quantity':
-                                    $column.html(
-                                        $('<input>')
-                                            .attr('type', 'number')
-                                            .attr('step', item.quantity_step || 1)
-                                            .val(item.quantity.toLocaleString(...options.format.count).replace(',', '.')) // I'm shocked too
-                                            .on('change', (e) => {
-                                                this.cartItemChangeCount($(e.currentTarget).val(), item.uuid, 'uuid');
-                                            })
-                                    );
-                                    break;
-                                case 'price':
-                                    $column.text(
-                                        (item[item.price_type]).toLocaleString(...options.format.price)
-                                    );
-                                    break;
-                                case 'total':
-                                    $column.text(
-                                        (item[item.price_type] * item.quantity).toLocaleString(...options.format.price)
-                                    );
-                                    break;
-                                case 'remove':
-                                    $column.html(
-                                        $('<button>')
-                                            .addClass('btn btn-icon')
-                                            .text('×')
-                                            .on('click', () => {
-                                                this.cartRemoveItemByField(item.uuid, 'uuid');
-                                            })
-                                    );
-                                    break;
-                                default:
-                                    $column.text(item[column.attr]);
+                            if (column.class) {
+                                $column.addClass(column.class);
                             }
-                        } else {
-                            // custom view
-                            $column.html(typeof column.view === 'function' ? column.view(item) : column.view);
+                            if (column.style) {
+                                $column.attr('style', column.style);
+                            }
+
+                            if (!column.view) {
+                                // draw by column type
+                                switch (column.attr) {
+                                    case 'title':
+                                        $column.html(
+                                            $('<span>')
+                                                .text(item.title)
+                                        );
+                                        break;
+                                    case 'url':
+                                        $column.html(
+                                            $('<a>')
+                                                .attr('href', item.url)
+                                                .attr('title', item.title)
+                                                .text(item.title)
+                                        );
+                                        break;
+                                    case 'thumb':
+                                        $column.html(
+                                            $('<img>')
+                                                .attr('src', item.thumb)
+                                                .attr('alt', item.title)
+                                        );
+                                        break;
+                                    case 'decrement':
+                                        $column.html(
+                                            $('<button>')
+                                                .addClass('btn btn-icon')
+                                                .text('-')
+                                                .on('click', () => {
+                                                    this.cartItemDecrement(item.uuid, 'uuid');
+                                                })
+                                        );
+                                        break;
+                                    case 'increment':
+                                        $column.html(
+                                            $('<button>')
+                                                .addClass('btn btn-icon')
+                                                .text('+')
+                                                .on('click', () => {
+                                                    this.cartItemIncrement(item.uuid, 'uuid');
+                                                })
+                                        );
+                                        break;
+                                    case 'quantity':
+                                        $column.html(
+                                            $('<input>')
+                                                .attr('type', 'number')
+                                                .attr('pattern', '[0-9]*')
+                                                .attr('inputmode', 'numeric')
+                                                .attr('step', item.quantity_step || 1)
+                                                .val(
+                                                    formatNumber(item.quantity, {
+                                                        ...options.format.count,
+                                                        currencySymbolStart: '',
+                                                        currencySymbolEnd: '',
+                                                        thousandsSeparator: '',
+                                                        decimalSeparator: '.'
+                                                    })
+                                                )
+                                                .on('change', (e) => {
+                                                    this.cartItemChangeCount($(e.currentTarget).val(), item.uuid, 'uuid');
+                                                })
+                                        );
+                                        break;
+                                    case 'price':
+                                        $column.text(
+                                            formatNumber(item[item.price_type], options.format.price)
+                                        );
+                                        break;
+                                    case 'total':
+                                        $column.text(
+                                            formatNumber(item[item.price_type] * item.quantity, options.format.price)
+                                        );
+                                        break;
+                                    case 'remove':
+                                        $column.html(
+                                            $('<button>')
+                                                .addClass('btn btn-icon')
+                                                .text('×')
+                                                .on('click', () => {
+                                                    this.cartRemoveItemByField(item.uuid, 'uuid');
+                                                })
+                                        );
+                                        break;
+                                    default:
+                                        $column.text(item[column.attr]);
+                                }
+                            } else {
+                                // custom view
+                                $column.html(typeof column.view === 'function' ? column.view(item) : column.view);
+                            }
+
+                            $row.append($column);
                         }
 
-                        $row.append($column);
+                        $tbody.append($row);
                     }
-
-                    $tbody.append($row);
 
                     // append system line with all item data
                     $items.append(
@@ -313,7 +368,7 @@
                     $items.append(
                         $('<input ' + options.selectors['cart-data'] + '>')
                             .attr('type', 'number')
-                            .attr('name', 'list[' + item.uuid + ']')
+                            .attr('name', 'list[' + item.uuid + '][count]')
                             .val(item.quantity)
                     );
 
@@ -337,21 +392,111 @@
         }
 
         /**
+         * Render select options by rules
+         * @return {*|jQuery|HTMLElement}
+         */
+        cartRenderDelivery() {
+            let $delivery = $(getSelector('cart-delivery')),
+                $collect = $();
+
+            if ($delivery.length) {
+                let selected = $delivery.val(),
+                    total = this.cartTotal(false);
+
+                for (let type in options.delivery) {
+                    let items = options.delivery[type].sort(
+                        (a, b) => parseFloat(b.condition) - parseFloat(a.condition)
+                    );
+
+                    for (let item of items) {
+                        if (
+                            (typeof item.condition === 'string' && total >= parseFloat(item.condition)) ||
+                            (typeof item.condition === 'boolean' && item.condition.toString() === 'true')
+                        ) {
+                            let properties = getItemPropertiesFromJQuery($(getSelector('item', item.uuid)));
+
+                            $collect = $collect.add(
+                                $('<option>')
+                                    .prop('selected', selected && selected === type)
+                                    .data('uuid', item.uuid)
+                                    .val(type)
+                                    .text(properties.title)
+                            );
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return $collect;
+        }
+
+        /**
+         * Render payment select options
+         * @return {*|jQuery|HTMLElement}
+         */
+        cartRenderPayment() {
+            let $payment = $(getSelector('cart-payment')),
+                $collect = $();
+
+            if ($payment.length) {
+                let selected = $payment.val();
+
+                for (let [uuid, title] of Object.entries(options.payment)) {
+                    $collect = $collect.add(
+                        $('<option>')
+                            .prop('selected', selected && selected === uuid)
+                            .val(uuid)
+                            .text(title)
+                    );
+                }
+            }
+
+            return $collect;
+        }
+
+        changeDelivery(uuid) {
+            if (this.cartTotal(false)) {
+                if (uuid && uuid !== delivery) {
+                    delivery = uuid;
+
+                    // first remove exist
+                    for (let type in options.delivery) {
+                        for (let item of options.delivery[type]) {
+                            this.cartRemoveItemByField(item.uuid, 'uuid');
+                        }
+                    }
+
+                    // add item
+                    let properties = getItemPropertiesFromJQuery($(getSelector('item', uuid)));
+                    properties['uuid'] = uuid;
+                    properties['price_type'] = 'price';
+                    properties['quantity'] = 1;
+
+                    this.cartAddItem(properties)
+                }
+            } else {
+                if (delivery) {
+                    // remove exist
+                    for (let type in options.delivery) {
+                        for (let item of options.delivery[type]) {
+                            this.cartRemoveItemByField(item.uuid, 'uuid');
+                        }
+                    }
+
+                    delivery = null;
+                }
+            }
+        }
+
+        /**
          * Add item to cart by jQuery object
          * @param $item
          * @return {number}
          */
         cartAddItemFromJQuery($item) {
-            let properties = {},
-                attr = getAttrName('item-attr');
-
-            $item.find(getSelector('item-attr')).each((i, item) => {
-                let $item = $(item);
-
-                properties[$item.attr(attr)] = $item.val() || $item.text() || $item.attr(getAttrName('item-attr-value')) || '';
-            });
-
-            return this.cartAddItem(properties);
+            return this.cartAddItem(getItemPropertiesFromJQuery($item));
         }
 
         /**
@@ -516,7 +661,7 @@
                 let count = cart
                     .reduce((count, item) => item['type'] === options.item_type ? count + 1 : count, 0);
 
-                return !ret_str ? count : count.toLocaleString(...options.format.count);
+                return !ret_str ? count : formatNumber(count, options.format.count);
             }
 
             return 0;
@@ -526,13 +671,14 @@
          * Total price of items in cart
          * @return {string|number}
          */
-        cartTotal(ret_str = true) {
+        cartTotal(ret_str = true, type = options.item_type) {
             if (cart.length) {
-                let price = Object.keys(cart)
-                        .map(f => cart[f]['type'] === options.item_type ? cart[f].quantity * cart[f][cart[f].price_type] : 0)
-                        .reduce((a, b) => a + b);
+                let price = cart
+                    .filter((el) => type ? el.type === type : true)
+                    .map((el) => el.quantity * el[el.price_type])
+                    .reduce((a, b) => a + b, 0);
 
-                return !ret_str ? price : price.toLocaleString(...options.format.price);
+                return !ret_str ? price : formatNumber(price, options.format.price);
             }
 
             return 0;
@@ -572,13 +718,21 @@
                 cache: false,
                 processData: false,
                 success: (res) => {
-                    triggerEvent('cart:checkout:after', data);
+                    if (res) {
+                        if (res.redirect) {
+                            triggerEvent('cart:checkout:after', data);
+                            this.cartRemoveAll();
 
-                    if (res && res.redirect) {
-                        this.cartRemoveAll();
-
-                        // flexibility
-                        setTimeout(() => location = res.redirect, options.cart.delay);
+                            // flexibility
+                            setTimeout(() => location = res.redirect, options.cart.delay);
+                        } else if (res.errors) {
+                            for(let name in res.errors) {
+                                $(getSelector('cart-data'))
+                                    .filter('[name="' + name + '"]')
+                                    .parents('[data-input]')
+                                    .addClass('has-error');
+                            }
+                        }
                     }
                 }
             });
@@ -665,7 +819,7 @@
                 break;
             }
             case 'items':
-                selector = '<div style="display: none;">';
+                selector = '<noindex style="display: none;">';
                 break;
         }
 
@@ -685,7 +839,6 @@
      */
     function saveCartData(cart) {
         localStorage.setItem(options.storage, JSON.stringify(cart));
-        triggerEvent('cart', cart);
     }
 
     /**
@@ -705,6 +858,24 @@
      */
     function getSelector(selector, value = false) {
         return '[' + getAttrName(selector) + (value ? '="' + value + '"' : '') + ']';
+    }
+
+    /**
+     * Return item attrs
+     * @param $item
+     * @return object
+     */
+    function getItemPropertiesFromJQuery($item) {
+        let properties = {},
+            attr = getAttrName('item-attr');
+
+        $item.find(getSelector('item-attr')).each((i, item) => {
+            let $item = $(item);
+
+            properties[$item.attr(attr)] = $item.val() || $item.text() || $item.attr(getAttrName('item-attr-value')) || '';
+        });
+
+        return properties;
     }
 
     /**
@@ -770,5 +941,29 @@
         }
 
         return target;
+    }
+
+    /**
+     * Formating numbers
+     * @param number
+     * @param decimalPlaces
+     * @param currencySymbolStart
+     * @param currencySymbolEnd
+     * @param thousandsSeparator
+     * @param decimalSeparator
+     * @returns {string}
+     */
+    function formatNumber(number, {decimalPlaces = 0, currencySymbolStart = '',  currencySymbolEnd = '', thousandsSeparator = '', decimalSeparator = ''}) {
+        let roundedNumber = number.toFixed(decimalPlaces);
+        let parts = roundedNumber.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+
+        let formattedNumber = parts.join(decimalSeparator);
+
+        if (currencySymbolStart || currencySymbolEnd) {
+            formattedNumber = `${currencySymbolStart}${formattedNumber}${currencySymbolEnd}`.trim();
+        }
+
+        return formattedNumber;
     }
 })(window.jQuery);

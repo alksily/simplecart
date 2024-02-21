@@ -1,251 +1,350 @@
-<title>SimpleCart | 0x12f</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
-<style>
-    body {
-        background: #e8cbc0;
-        background: -webkit-linear-gradient(to right, #e8cbc0, #636fa4);
-        background: linear-gradient(to right, #e8cbc0, #636fa4);
-        min-height: 100vh;
-    }
+<!DOCTYPE html>
+<html data-build="prod-6dea48e">
+    <head>
+        <meta charSet="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-    [data-catalog-cart] input,
-    [data-catalog-cart] button {
-        display: block;
-        margin: 0 auto;
-        padding: 0 10px;
-        font-size: 1rem;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #ffffff;
-        background-clip: padding-box;
-        border: 1px solid #ced4da;
-        border-radius: .25rem;
-        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-    }
+        <title>SimpleCart | 0x12f</title>
 
-    [data-catalog-cart] input {
-        width: 100%;
-        text-align: center;
-    }
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+        <style>
+        body {
+            background: #e8cbc0;
+            background: -webkit-linear-gradient(to right, #e8cbc0, #636fa4);
+            background: linear-gradient(to right, #e8cbc0, #636fa4);
+            min-height: 100vh;
+        }
 
-    [data-catalog-cart] button {
-        color: #ffffff;
-        background-color: #0069d9;
-        border-color: #0062cc;
-    }
+        [data-catalog-cart] input,
+        [data-catalog-cart] button {
+            display: block;
+            margin: 0 auto;
+            padding: 0 10px;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #ffffff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
 
-    .check-error {
-        border-color: firebrick;
-    }
-</style>
+        [data-catalog-cart] input {
+            width: 100%;
+            text-align: center;
+        }
 
-<!-- For demo purpose -->
-<div class="container pt-5">
-    <div class="row text-center text-white">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="display-4">SimpleCart</h1>
-            <p class="lead mb-0">A simple JavaScript shopping cart that you can setup in minutes.</p>
-            <p class="lead">
-                Fork me on <a href="https://github.com/alksily/simplecart" target="_blank" class="text-white"><u>GitHub</u></a>,
-                snippet by <a href="https://github.com/alksily" class="text-white"><u>Aleksey Ilyin</u></a>
-            </p>
-        </div>
-    </div>
-</div>
-<!-- End -->
+        [data-catalog-cart] button {
+            color: #ffffff;
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
 
-<!-- Cart stats -->
-<div class="container pb-5">
-    <div class="row text-center text-white">
-        <div class="col-lg-8 mx-auto">
-            In cart <span data-catalog-cart-count>0</span> items
-            on total cost <span data-catalog-cart-total>0</span>
-        </div>
-    </div>
-</div>
-<!-- End -->
+        .check-error {
+            border-color: firebrick;
+        }
+    </style>
+    </head>
 
-<div class="container">
-    <div class="row text-center">
-        <!-- Shelf item -->
-        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5>Item</h5>
-                    <h4 class="card-title"><strong><a href="">Product 1</a></strong></h4>
-                    <p class="card-text">
-                        Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
-                        et voluptates.
+    <body>
+        <!-- For demo purpose -->
+        <div class="container pt-5 pb-3">
+            <div class="row text-center text-white">
+                <div class="col-lg-8 mx-auto">
+                    <h1 class="display-4">SimpleCart</h1>
+                    <p class="lead mb-0">A simple JavaScript shopping cart that you can setup in minutes.</p>
+                    <p class="lead">
+                        Fork me on <a href="https://github.com/alksily/simplecart" target="_blank" class="text-white"><u>GitHub</u></a>,
+                        snippet by <a href="https://github.com/alksily" class="text-white"><u>Aleksey Ilyin</u></a>
                     </p>
-                </div>
-                <div class="card-footer text-muted">
-                    <span class="float-left p-1">49$</span>
-                    <span class="float-right">
-                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
-                    </span>
-                </div>
-                <div style="display: none;">
-                    <span data-catalog-item-attr="uuid">1</span>
-                    <span data-catalog-item-attr="title">Product 1</span>
-                    <span data-catalog-item-attr="vendorcode">303.449.11</span>
-                    <span data-catalog-item-attr="price">49.00</span>
-                    <span data-catalog-item-attr="price_wholesale">45.00</span>
-                    <span data-catalog-item-attr="price_wholesale_from">3</span>
                 </div>
             </div>
         </div>
         <!-- End -->
 
-        <!-- Shelf item -->
-        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5>Item</h5>
-                    <h4 class="card-title"><strong><a href="">Product 2</a></strong></h4>
-                    <p class="card-text">
-                        Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
-                        et voluptates.
-                    </p>
-                </div>
-                <div class="card-footer text-muted">
-                    <span class="float-left p-1">59$</span>
-                    <span class="float-right">
-                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
-                    </span>
-                </div>
-                <div style="display: none;">
-                    <span data-catalog-item-attr="uuid">2</span>
-                    <span data-catalog-item-attr="title">Product 2</span>
-                    <span data-catalog-item-attr="vendorcode">301.445.12</span>
-                    <span data-catalog-item-attr="price">59.00</span>
-                    <span data-catalog-item-attr="price_wholesale">54.00</span>
-                    <span data-catalog-item-attr="price_wholesale_from">10</span>
-                </div>
-            </div>
-        </div>
-        <!-- End -->
-
-        <!-- Shelf item -->
-        <div class="col-xl-3 col-sm-6 mb-5 mx-auto" data-catalog-item>
-            <div class="card text-center">
-                <div class="card-body">
-                    <h5>Item</h5>
-                    <h4 class="card-title"><strong><a href="">Product 3</a></strong></h4>
-                    <p class="card-text">
-                        Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
-                        et voluptates.
-                    </p>
-                </div>
-                <div class="card-footer text-muted">
-                    <span class="float-left p-1">64$</span>
-                    <span class="float-right">
-                        <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
-                    </span>
-                </div>
-                <div style="display: none;">
-                    <span data-catalog-item-attr="uuid" data-catalog-item-attr-value="3"></span>
-                    <span data-catalog-item-attr="title" data-catalog-item-attr-value="Product 3"></span>
-                    <span data-catalog-item-attr="vendorcode" data-catalog-item-attr-value="302.422.14"></span>
-                    <span data-catalog-item-attr="price" data-catalog-item-attr-value="64.00"></span>
-                    <span data-catalog-item-attr="price_wholesale">50.00</span>
-                    <span data-catalog-item-attr="price_wholesale_from">100</span>
-                    <span data-catalog-item-attr="quantity_step">5</span>
-                    <span data-catalog-item-attr="quantity_min">10</span>
-                </div>
-            </div>
-        </div>
-        <!-- End -->
-    </div>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div id="data" class="card-body"></div>
-    </div>
-</div>
-
-<div class="container mb-5">
-    <div class="card">
-        <div class="card-body">
-            <div data-catalog-cart></div>
-
-            <hr>
-
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <label for="firstName">First name (*)</label>
-                            <input type="text" id="firstName" name="firstName" class="form-control" data-catalog-cart-data required>
+        <div class="container">
+            <div class="row text-center">
+                <!-- Shelf item -->
+                <div class="col-xl-3 col-sm-6 mx-auto" data-catalog-item>
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5>Item</h5>
+                            <h4 class="card-title"><strong><a href="">Product 1</a></strong></h4>
+                            <p class="card-text">
+                                Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
+                                et voluptates.
+                            </p>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <label for="lastName">Last name (*)</label>
-                            <input type="text" id="lastName" name="lastName" class="form-control" data-catalog-cart-data required>
+                        <div class="card-footer text-muted">
+                            <span class="float-left p-1">49$/pc</span>
+                            <span class="float-right">
+                                <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
+                            </span>
+                        </div>
+
+                        <noindex>
+                            <div style="display: none;">
+                                <span data-catalog-item-attr="uuid">1</span>
+                                <span data-catalog-item-attr="title">Product 1</span>
+                                <span data-catalog-item-attr="vendorcode">303.449.11</span>
+                                <span data-catalog-item-attr="price">49.00</span>
+                                <span data-catalog-item-attr="price_wholesale">45.00</span>
+                                <span data-catalog-item-attr="price_wholesale_from">3</span>
+                            </div>
+                        </noindex>
+                    </div>
+                </div>
+                <!-- End -->
+
+                <!-- Shelf item -->
+                <div class="col-xl-3 col-sm-6 mx-auto" data-catalog-item>
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5>Item</h5>
+                            <h4 class="card-title"><strong><a href="">Product 2</a></strong></h4>
+                            <p class="card-text">
+                                Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
+                                et voluptates.
+                            </p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <span class="float-left p-1">59$/pc</span>
+                            <span class="float-right">
+                                <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
+                            </span>
+                        </div>
+
+                        <noindex>
+                            <div style="display: none;">
+                                <span data-catalog-item-attr="uuid">2</span>
+                                <span data-catalog-item-attr="title">Product 2</span>
+                                <span data-catalog-item-attr="vendorcode">301.445.12</span>
+                                <span data-catalog-item-attr="price">59.00</span>
+                                <span data-catalog-item-attr="price_wholesale">54.00</span>
+                                <span data-catalog-item-attr="price_wholesale_from">10</span>
+                            </div>
+                        </noindex>
+                    </div>
+                </div>
+                <!-- End -->
+
+                <!-- Shelf item -->
+                <div class="col-xl-3 col-sm-6 mx-auto" data-catalog-item>
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5>Item</h5>
+                            <h4 class="card-title"><strong><a href="">Product 3</a></strong></h4>
+                            <p class="card-text">
+                                Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut
+                                et voluptates.
+                            </p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <span class="float-left p-1">$64/pc, ≥10 pcs</span>
+                            <span class="float-right">
+                                <button class="btn btn-sm btn-link" type="button" data-catalog-item-add>In cart</button>
+                            </span>
+                        </div>
+
+                        <noindex>
+                            <div style="display: none;">
+                                <span data-catalog-item-attr="uuid" data-catalog-item-attr-value="3"></span>
+                                <span data-catalog-item-attr="title" data-catalog-item-attr-value="Product 3"></span>
+                                <span data-catalog-item-attr="vendorcode" data-catalog-item-attr-value="302.422.14"></span>
+                                <span data-catalog-item-attr="price" data-catalog-item-attr-value="64.00"></span>
+                                <span data-catalog-item-attr="price_wholesale">50.00</span>
+                                <span data-catalog-item-attr="price_wholesale_from">100</span>
+                                <span data-catalog-item-attr="quantity_step">5</span>
+                                <span data-catalog-item-attr="quantity_min">10</span>
+                            </div>
+                        </noindex>
+                    </div>
+                </div>
+                <!-- End -->
+
+                <!-- Delivery options -->
+                <noindex>
+                    <!-- Delivery option -->
+                    <div data-catalog-item="97" style="display: none;">
+                        <span data-catalog-item-attr="uuid" data-catalog-item-attr-value="97"></span>
+                        <span data-catalog-item-attr="title" data-catalog-item-attr-value="Point of issue"></span>
+                        <span data-catalog-item-attr="price" data-catalog-item-attr-value="0"></span>
+                        <span data-catalog-item-attr="type">service</span>
+                    </div>
+                    <!-- Delivery option -->
+                    <!-- End -->
+                    <div data-catalog-item="98" style="display: none;">
+                        <span data-catalog-item-attr="uuid" data-catalog-item-attr-value="98"></span>
+                        <span data-catalog-item-attr="title" data-catalog-item-attr-value="Delivery"></span>
+                        <span data-catalog-item-attr="price" data-catalog-item-attr-value="15"></span>
+                        <span data-catalog-item-attr="type">service</span>
+                    </div>
+                    <!-- Delivery option -->
+                    <!-- End -->
+                    <div data-catalog-item="99" style="display: none;">
+                        <span data-catalog-item-attr="uuid" data-catalog-item-attr-value="99"></span>
+                        <span data-catalog-item-attr="title" data-catalog-item-attr-value="Free Delivery"></span>
+                        <span data-catalog-item-attr="price" data-catalog-item-attr-value="0"></span>
+                        <span data-catalog-item-attr="type">service</span>
+                    </div>
+                    <!-- End -->
+                </noindex>
+                <!-- End -->
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div id="data" class="card-body"></div>
+            </div>
+        </div>
+
+        <div class="container mb-5">
+            <div class="alert alert-success text-center" role="alert">
+                <h5 class="alert-heading">Note!</h5>
+                <p class="m-0">Free shipping conditions: from $700.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div data-catalog-cart></div>
+
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <label for="firstName">First name (*)</label>
+                                            <input type="text" id="firstName" name="firstName" value="David" class="form-control" data-catalog-cart-data required>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <label for="lastName">Last name (*)</label>
+                                            <input type="text" id="lastName" name="lastName" value="Shepherd" class="form-control" data-catalog-cart-data required>
+                                        </div>
+                                    </div>
+
+                                    <label for="email">Email (optional)</label>
+                                    <input type="text" id="email" name="email" value="dshepherd@bethlehemmail.com" class="form-control mb-4" data-catalog-cart-data placeholder="youremail@example.com">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="delivery">Delivery Type (*)</label>
+                                            <select id="delivery" class="form-control mb-4" data-catalog-cart-delivery required></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="payment">Payment Method (*)</label>
+                                            <select id="payment" name="payment" class="form-control mb-4" data-catalog-cart-payment required></select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label for="address">Address (*)</label>
+                                    <input type="text" id="address" name="address" value="Shepherd Valley 7" class="form-control mb-4" data-catalog-cart-data required placeholder="1234 Main St">
+
+                                    <label for="address-2">Address 2 (optional)</label>
+                                    <input type="text" id="address-2" name="address-2" value="Bethlehem" class="form-control mb-4" data-catalog-cart-data placeholder="Apartment or suite">
+                                </div>
+
+                                <div class="col-lg-10 d-block mx-auto">
+                                    <button class="btn btn-primary btn-lg btn-block waves-effect waves-light" data-catalog-cart-checkout type="button">
+                                        Place order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <table class="table">
+                                <tr>
+                                    <th style="width: 60%">Items: </th>
+                                    <td class="text-right" data-catalog-cart-count>0</td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 60%">Items price: </th>
+                                    <td class="text-right" data-catalog-cart-total>0</td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 60%">Services price: </th>
+                                    <td class="text-right" data-catalog-cart-total-service>0</td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 60%">Total price: </th>
+                                    <td class="text-right" data-catalog-cart-total-all>0</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-
-                    <label for="email">Email (optional)</label>
-                    <input type="text" id="email" name="email" class="form-control mb-4" data-catalog-cart-data placeholder="youremail@example.com">
-                </div>
-
-                <div class="col-lg-6">
-                    <label for="address">Address (*)</label>
-                    <input type="text" id="address" name="address" class="form-control mb-4" data-catalog-cart-data required placeholder="1234 Main St">
-
-                    <label for="address-2">Address 2 (optional)</label>
-                    <input type="text" id="address-2" name="address-2" class="form-control mb-4" data-catalog-cart-data placeholder="Apartment or suite">
-                </div>
-
-                <div class="col-lg-10 d-block mx-auto">
-                    <button class="btn btn-primary btn-lg btn-block waves-effect waves-light" data-catalog-cart-checkout type="button">
-                        Place order
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    window.catalog = {
-        cart: {
-            columns: [
-                {label: 'Title', attr: 'title', view: null, class: null, style: 'text-align: center;'},
-                {label: 'Code', attr: 'vendorcode', view: null, class: null, style: 'text-align: center;'},
-                {label: '-', attr: 'decrement', view: null, class: null, style: 'width: 10%; text-align: center;'},
-                {label: 'Quantity', attr: 'quantity', view: null, class: null, style: 'width: 15%;'},
-                {label: '+', attr: 'increment', view: null, class: null, style: 'width: 10%; text-align: center;'},
-                {label: 'Cost', attr: 'price', view: null, class: null, style: 'text-align: center;'},
-                {label: 'Total', attr: 'total', view: null, class: null, style: 'text-align: center;'},
-                {label: 'Remove', attr: 'remove', view: null, class: null, style: 'text-align: center;'},
-            ],
-            columns_header: true,
-            style: 'table',
-            table_class: 'table table-striped'
-        },
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            window.catalog = {
+                cart: {
+                    columns: [
+                        {label: 'Title', attr: 'title', view: null, class: null, style: 'text-align: center;'},
+                        {label: 'Code', attr: 'vendorcode', view: null, class: null, style: 'text-align: center;'},
+                        {label: '-', attr: 'decrement', view: null, class: null, style: 'width: 10%; text-align: center;'},
+                        {label: 'Quantity', attr: 'quantity', view: null, class: null, style: 'width: 15%;'},
+                        {label: '+', attr: 'increment', view: null, class: null, style: 'width: 10%; text-align: center;'},
+                        {label: 'Cost', attr: 'price', view: null, class: null, style: 'text-align: center;'},
+                        {label: 'Total', attr: 'total', view: null, class: null, style: 'text-align: center;'},
+                        {label: 'Remove', attr: 'remove', view: null, class: null, style: 'text-align: center;'},
+                    ],
+                    columns_header: true,
+                    style: 'table',
+                    table_class: 'table table-striped'
+                },
 
-        events: {
-            'on:cart:add': (data) => {
-                alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
-            },
-            'on:cart:checkout:before': formData => {
-                // For demo purpose
-                let object = {};
+                delivery: {
+                    "Delivery and free condition": [
+                        {
+                            "uuid": "98", // catalog product with type 'service'
+                            "condition": "0" // cart total must be great
+                        },
+                        {
+                            "uuid": "99",
+                            "condition": "700"
+                        }
+                    ],
+                    "Delivery to the point of issue": [{"uuid": "97", "condition": "0"}],
+                },
 
-                formData.forEach(function (value, key) {
-                    object[key] = value;
-                });
-                console.info('Cart data', object);
+                payment: {
+                    "cash-payment": "Cash",
+                    "card-payment": "Card"
+                },
 
-                $('#data').html(
-                    JSON.stringify(object, null, 6).replace(/\n( *)/g, (match, p1) => {
-                        return '<br>' + '&nbsp;'.repeat(p1.length);
-                    })
-                );
-                // For demo purpose
+                events: {
+                    'on:cart:add': (data) => {
+                        if (data.type === 'product') {
+                            alert('Item added, ' + data.title + ' (×' + data.quantity + ') now in cart');
+                        }
+                    },
+                    'on:cart:checkout:before': formData => {
+                        // For demo purpose
+                        let object = {};
+
+                        formData.forEach(function (value, key) {
+                            if (!key.startsWith('item')) {
+                                object[key] = value;
+                            }
+                        });
+                        console.info('Cart data', object);
+
+                        $('#data').html(
+                            JSON.stringify(object, null, 6).replace(/\n( *)/g, (match, p1) => {
+                                return '<br>' + '&nbsp;'.repeat(p1.length);
+                            })
+                        );
+                        // For demo purpose
+                    }
+                }
             }
-        }
-    }
-</script>
-<script src="simplecart.js"></script>
+        </script>
+        <script src="simplecart.js"></script>
+    </body>
+</html>

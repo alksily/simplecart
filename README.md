@@ -36,7 +36,9 @@ Column options: ```title, url, thumb, decrement, increment, quantity, price, tot
 **Other cart options**
 ```javascript
 window.catalog = {
-    cart: { 
+    cart: {
+        columns : { /* ... */ },
+        
         // showing header
         columns_header: true,
         
@@ -51,6 +53,9 @@ window.catalog = {
             table: 'table',
             container: 'cart-container',
         },
+
+        // before redirect
+        delay: 10,
         
         // cart handler url
         url: '',
@@ -59,6 +64,8 @@ window.catalog = {
 }
 ```
 
+**Number formats**
+
 If you want to change options, like the precision or currency, you can do that as well:
 ```javascript
 window.catalog = {
@@ -66,8 +73,70 @@ window.catalog = {
 
     // format settings
     format: {
-        count: ['en_US', {minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item counts
-        price: ['en_US', {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2}], // in item prices and totals
+        count: {decimalPlaces: 2, thousandsSeparator: ',', decimalSeparator: '.'}, // in item counts
+        price: {decimalPlaces: 2, currencySymbolStart: '$',  currencySymbolEnd: '', thousandsSeparator: ',', decimalSeparator: '.'}, // in item prices and totals
+    },
+}
+```
+
+**Delivery**
+
+```javascript
+window.catalog = {
+    cart: { /* ... */ },
+
+    /* ... */
+
+    delivery: {
+        "Delivery and free condition": [
+            {
+                "uuid": "00000000-0000-0000-0000-000000000000", // catalog product with type 'service'
+                "condition": "0" // cart total must be great
+            },
+            {
+                "uuid": "00000000-0000-0000-0000-000000000000",
+                "condition": "150"
+            }
+        ],
+        "Delivery to the point of issue": [
+            {"uuid": "00000000-0000-0000-0000-000000000000", "condition": "0"}
+        ],
+    },
+}
+```
+
+**Payment**
+
+```javascript
+window.catalog = {
+    cart: { /* ... */ },
+
+    /* ... */
+
+    payment: {
+        "00000000-0000-0000-0000-000000000000": "Cash",
+        "00000000-0000-0000-0000-000000000001": "Card"
+    },
+}
+```
+
+Set your name for attributes
+```javascript
+window.catalog = {
+    cart: { /* ... */ },
+    
+    /* ... */
+
+    selectors: {
+        'item': 'data-catalog-item', // item (e.g. product or service in catalog)
+        'item-attr': 'data-catalog-item-attr', // item attr (price, color, etc)
+        'item-attr-value': 'data-catalog-item-attr-value', // item attr value
+        'item-add': 'data-catalog-item-add', // button add to cart
+        'cart': 'data-catalog-cart', // cart place
+        'cart-data': 'data-catalog-cart-data', // cart data (client field: name, phone, etc)
+        'cart-checkout': 'data-catalog-cart-checkout', // button cart checkout
+        'count-items': 'data-catalog-cart-count', // counter place (count items in cart)
+        'count-total': 'data-catalog-cart-total', // counter place (count total price of items)
     },
 }
 ```
@@ -92,27 +161,6 @@ To sell items, you add them to your "Shelf" by simply adding a few `attributes` 
     </div>
 </div>
 <!-- End -->
-```
-
-Set your name for attributes
-```javascript
-window.catalog = {
-    cart: { /* ... */ },
-    
-    /* ... */
-
-    selectors: {
-        'item': 'data-catalog-item', // item (e.g. product or service in catalog)
-        'item-attr': 'data-catalog-item-attr', // item attr (price, color, etc)
-        'item-attr-value': 'data-catalog-item-attr-value', // item attr value
-        'item-add': 'data-catalog-item-add', // button add to cart
-        'cart': 'data-catalog-cart', // cart place
-        'cart-data': 'data-catalog-cart-data', // cart data (client field: name, phone, etc)
-        'cart-checkout': 'data-catalog-cart-checkout', // button cart checkout
-        'count-items': 'data-catalog-cart-count', // counter place (count items in cart)
-        'count-total': 'data-catalog-cart-total', // counter place (count total price of items)
-    },
-}
 ```
 
 **Shelf item attributes**
@@ -169,7 +217,7 @@ Place attribute in your place:
 </button>
 ```
 
-#### Events
+**Events**
 You can define event functions:
 ```javascript
 window.catalog = {
@@ -193,16 +241,40 @@ or jQuery:
 $(window).on('event:catalog:ready', (data, cart) => { /* ... */ });
 ```
 
-#### Cart counters
-Counter **items** in cart and **total price**:
+**Cart counters**
+Counter **items** in cart, **items price**, **service price** and **total price**:
 ```html
-<div class="col-lg-8 mx-auto">
-    In cart <span data-catalog-cart-count>0</span> items
-    on total cost <span data-catalog-cart-total>0</span>
-</div>
+<table class="table">
+    <tr>
+        <th style="width: 60%">Items: </th>
+        <td class="text-right" data-catalog-cart-count>0</td>
+    </tr>
+    <tr>
+        <th style="width: 60%">Items price: </th>
+        <td class="text-right" data-catalog-cart-total>0</td>
+    </tr>
+    <tr>
+        <th style="width: 60%">Services price: </th>
+        <td class="text-right" data-catalog-cart-total-service>0</td>
+    </tr>
+    <tr>
+        <th style="width: 60%">Total price: </th>
+        <td class="text-right" data-catalog-cart-total-all>0</td>
+    </tr>
+</table>
 ```
 
-#### Self handled
+**Storage key**
+```javascript
+window.catalog = {
+    storage: 'catalog-cart', // localstorage key
+
+    /* ... */
+}
+```
+
+**Self handled**
+
 You can turn off automatic script initialization and use the API:
 ```javascript
 window.catalog = {
@@ -218,6 +290,9 @@ window.catalog = {
 
 **API**
 ```javascript
+// get options
+window.catalog.getOptions()
+
 // add item by jQuery
 window.catalog.cartAddItemFromJQuery($('[data-catalog-item]'));
 
