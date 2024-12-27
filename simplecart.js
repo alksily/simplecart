@@ -50,6 +50,9 @@
 
             // cart handler url
             url: '',
+
+            // delivery options view
+            delivery: 'title', // group
         },
 
         delivery: {
@@ -420,7 +423,7 @@
                                     .prop('selected', selected && selected === type)
                                     .data('uuid', item.uuid)
                                     .val(type)
-                                    .text(properties.title)
+                                    .text(options.cart.delivery === 'title' ? properties.title : type)
                             );
 
                             break;
